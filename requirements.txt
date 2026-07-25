@@ -1,0 +1,27 @@
+# AI Content Creator — Python Requirements
+# Install with: pip install -r requirements.txt
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+
+# Database ORM
+sqlalchemy==2.0.36
+
+# Authentication & Security
+passlib[bcrypt]==1.7.4
+pyjwt==2.10.1
+python-multipart==0.0.20
+
+# Environment Variables
+python-dotenv==1.0.1
+
+# AI / LLM APIs
+google-generativeai==0.8.3
+openai==1.57.4
+
+# HTTP requests (for Ollama fallback)
+requests==2.32.3
+
+# Frontend serving
+aiofiles==24.1.0

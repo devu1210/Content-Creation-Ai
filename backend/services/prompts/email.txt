@@ -1,0 +1,16 @@
+Write a professional email.
+
+Topic: {topic}
+Tone: {tone}
+Target Audience: {role}
+Length: {length}
+Format: {format}
+
+Requirements:
+- Clear and professional tone
+- Proper email structure
+- Include greeting and closing
+- DO NOT include hashtags
+- DO NOT include social media style formatting
+
+Generate professional email content.

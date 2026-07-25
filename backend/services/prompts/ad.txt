@@ -1,0 +1,17 @@
+Write a promotional advertisement.
+
+Topic: {topic}
+Tone: {tone}
+Target Audience: {role}
+Length: {length}
+Format: {format}
+Keywords to include: {keywords}
+
+Requirements:
+- Make it persuasive and engaging
+- Focus on benefits and value
+- Include strong call-to-action
+- Add relevant hashtags at the end
+- Use keywords naturally
+
+Generate compelling promotional content.

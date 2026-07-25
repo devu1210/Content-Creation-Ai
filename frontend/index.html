@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Creator — Generate. Refine. Publish.</title>
+    <meta name="description" content="AI-powered content creation tool for LinkedIn posts, emails, and ad copy. Fast, intelligent, and beautifully designed.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ─── AUTH OVERLAY ─── -->
+<div id="auth-view" class="auth-overlay">
+    <div class="auth-bg-grid"></div>
+    <div class="auth-glow auth-glow-1"></div>
+    <div class="auth-glow auth-glow-2"></div>
+
+    <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="auth-logo-icon">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+                <h1 class="auth-logo-title">AI Creator</h1>
+                <p class="auth-logo-sub">Generate. Refine. Publish.</p>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs" id="auth-tabs">
+            <button class="auth-tab active" id="tab-sign-in" onclick="switchTab('signin')">Sign In</button>
+            <button class="auth-tab" id="tab-sign-up" onclick="switchTab('signup')">Create Account</button>
+            <div class="auth-tab-indicator" id="tab-indicator"></div>
+        </div>
+
+        <!-- Sign In Form -->
+        <form id="login-form" class="auth-form" autocomplete="on">
+            <div class="form-group">
+                <label class="form-label">Email address</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="text" id="login-email" class="form-input" placeholder="Insert Your Email" autocomplete="email" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password" required>
+                    <button type="button" class="input-toggle-pw" onclick="togglePassword('login-password', this)">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="login-error" class="form-error hidden"></div>
+            <button type="submit" class="btn-primary" id="btn-login">
+                <span>Sign in</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- Sign Up Form -->
+        <form id="signup-form" class="auth-form hidden" autocomplete="on">
+            <div class="form-group">
+                <label class="form-label">Email address</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="text" id="signup-email" class="form-input" placeholder="Insert Your Email" autocomplete="email" required>
+                </div>
+                <p class="form-hint">Any email format works — developers@hello.com, name@company.io, etc.</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="signup-password" class="form-input" placeholder="Min. 6 characters" autocomplete="new-password" required>
+                    <button type="button" class="input-toggle-pw" onclick="togglePassword('signup-password', this)">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="signup-error" class="form-error hidden"></div>
+            <button type="submit" class="btn-primary" id="btn-signup">
+                <span>Create account</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-divider"><span>or</span></div>
+
+        <button id="btn-guest" class="btn-ghost">
+            <i class="fa-solid fa-user-secret"></i>
+            Continue as Guest
+        </button>
+
+        <p class="auth-footer-note">Guest sessions do not save history or exports.</p>
+    </div>
+</div>
+
+<!-- ─── APP VIEW ─── -->
+<div id="app-view" class="app-layout hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <span class="brand-name">AI Creator</span>
+            </div>
+            <button id="btn-close-sidebar" class="icon-btn md-hidden">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-body">
+            <button id="btn-new-chat" class="btn-new-gen">
+                <i class="fa-solid fa-plus"></i>
+                New Generation
+            </button>
+
+            <div class="history-section">
+                <div class="history-label">Recent</div>
+                <div id="guest-notice" class="guest-notice hidden">
+                    <i class="fa-solid fa-circle-info"></i>
+                    History not available for guests.
+                </div>
+                <div id="history-list">
+                    <div class="history-loading">
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-pill">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="user-info">
+                    <div class="user-email" id="user-display">User</div>
+                    <div class="user-role" id="user-role-label">Member</div>
+                </div>
+                <button id="btn-logout" class="logout-btn" title="Sign out">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar backdrop (mobile) -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop hidden"></div>
+
+    <!-- Main -->
+    <main class="main-area">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button id="btn-menu" class="icon-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="topbar-title" id="current-chat-title">New Generation</div>
+            </div>
+            <div class="topbar-right">
+                <button id="btn-theme" class="icon-btn" title="Toggle theme">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Scroll Area -->
+        <div class="content-area" id="chat-container">
+
+            <!-- Generation Form -->
+            <div id="generation-form-view" class="form-view">
+                <div class="form-hero">
+                    <h2 class="form-hero-title">What would you like to create?</h2>
+                    <p class="form-hero-sub">Fill in the details below and let AI craft the perfect content for you.</p>
+                </div>
+
+                <form id="content-form" class="gen-form">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="field-label">Content Type</label>
+                            <div class="select-wrapper">
+                                <select id="field-type" class="field-select">
+                                    <option value="linkedin">🔗 LinkedIn Post</option>
+                                    <option value="email">✉️ Professional Email</option>
+                                    <option value="advertisement">📢 Advertisement Copy</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Tone</label>
+                            <div class="select-wrapper">
+                                <select id="field-tone" class="field-select">
+                                    <option value="professional">Professional</option>
+                                    <option value="casual">Casual</option>
+                                    <option value="persuasive">Persuasive</option>
+                                    <option value="humorous">Humorous</option>
+                                    <option value="informative">Informative</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-field full">
+                        <label class="field-label">Topic or Subject</label>
+                        <div class="topic-input-wrap">
+                            <input type="text" id="field-topic" class="field-input" placeholder="e.g. AI transforming the healthcare industry..." required>
+                            <button type="button" id="btn-voice-input" class="voice-btn" title="Voice input">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-row three-col">
+                        <div class="form-field">
+                            <label class="field-label">Target Audience</label>
+                            <div class="select-wrapper">
+                                <select id="field-audience" class="field-select">
+                                    <option value="general">General</option>
+                                    <option value="executives">Executives (C-level)</option>
+                                    <option value="developers">Developers</option>
+                                    <option value="students">Students</option>
+                                    <option value="customers">Potential Customers</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Length</label>
+                            <div class="select-wrapper">
+                                <select id="field-length" class="field-select">
+                                    <option value="short">Short (100-200 words)</option>
+                                    <option value="medium">Medium (300-500 words)</option>
+                                    <option value="long">Long (600+ words)</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label">Output Format</label>
+                            <div class="select-wrapper">
+                                <select id="field-format" class="field-select">
+                                    <option value="paragraphs">Paragraphs</option>
+                                    <option value="bullet_points">Bullet Points</option>
+                                    <option value="list">Numbered List</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down select-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-field full" id="keywords-container">
+                        <label class="field-label">Keywords <span class="optional-tag">Optional</span></label>
+                        <input type="text" id="field-keywords" class="field-input" placeholder="innovation, startup, growth (comma-separated)">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="btn-generate" class="btn-generate">
+                            <i class="fa-solid fa-bolt"></i>
+                            Generate Content
+                        </button>
+                        <button type="button" id="btn-clear" class="btn-secondary">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Chat Messages View -->
+            <div id="chat-messages-view" class="chat-view hidden">
+                <!-- Messages injected here -->
+            </div>
+        </div>
+
+        <!-- Chat Toolbar (sticky bottom) -->
+        <div id="chat-toolbar" class="chat-toolbar hidden">
+            <div class="toolbar-left">
+                <button class="export-btn export-btn-guest-hidden" id="btn-export-pdf">
+                    <i class="fa-solid fa-file-pdf"></i> PDF
+                </button>
+                <button class="export-btn export-btn-guest-hidden" id="btn-export-txt">
+                    <i class="fa-solid fa-file-lines"></i> TXT
+                </button>
+            </div>
+            <button id="btn-regenerate-chat" class="btn-regen">
+                <i class="fa-solid fa-rotate-right"></i>
+                Regenerate
+            </button>
+        </div>
+    </main>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Scripts -->
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+// Auth tab switching helper (inline for simplicity)
+function switchTab(tab) {
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const tabSignIn = document.getElementById('tab-sign-in');
+    const tabSignUp = document.getElementById('tab-sign-up');
+    const indicator = document.getElementById('tab-indicator');
+
+    if (tab === 'signin') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        tabSignIn.classList.add('active');
+        tabSignUp.classList.remove('active');
+        indicator.style.transform = 'translateX(0%)';
+    } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        tabSignIn.classList.remove('active');
+        tabSignUp.classList.add('active');
+        indicator.style.transform = 'translateX(100%)';
+    }
+    // clear errors
+    document.getElementById('login-error').classList.add('hidden');
+    document.getElementById('signup-error').classList.add('hidden');
+}
+
+function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+    }
+}
+</script>
+</body>
+</html>

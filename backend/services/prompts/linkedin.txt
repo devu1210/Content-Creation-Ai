@@ -1,0 +1,17 @@
+Write a professional LinkedIn post.
+
+Topic: {topic}
+Tone: {tone}
+Target Audience: {role}
+Length: {length}
+Format: {format}
+Keywords to include: {keywords}
+
+Requirements:
+- Make it engaging and professional
+- Provide valuable insights
+- Add relevant hashtags at the end
+- Use the keywords naturally
+- Optimize for LinkedIn audience
+
+Generate high-quality content.
